@@ -34,3 +34,5 @@
 .fleet
 build
 .cache
+.idea
+cmake-build-debug

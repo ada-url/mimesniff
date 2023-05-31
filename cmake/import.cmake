@@ -1,6 +1,6 @@
-set(dep_root "${ada-idna_SOURCE_DIR}/dependencies/.cache")
-if(DEFINED ENV{ada-idna_DEPENDENCY_CACHE_DIR})
-  set(dep_root "$ENV{ada-idna_DEPENDENCY_CACHE_DIR}")
+set(dep_root "${ada-mimesniff_SOURCE_DIR}/dependencies/.cache")
+if(DEFINED ENV{ada-mimesniff_DEPENDENCY_CACHE_DIR})
+  set(dep_root "$ENV{ada-mimesniff_DEPENDENCY_CACHE_DIR}")
 endif()
 
 function(import_dependency NAME GITHUB_REPO COMMIT)

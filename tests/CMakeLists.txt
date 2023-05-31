@@ -3,7 +3,7 @@ if(MSVC)
 endif()
 
 include(${PROJECT_SOURCE_DIR}/cmake/add-cpp-test.cmake)
-link_libraries(ada-idna)
+link_libraries(ada-mimesniff)
 
 # add_cpp_test(punycode_tests)
 # add_cpp_test(to_ascii_tests)

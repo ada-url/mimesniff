@@ -3,7 +3,7 @@ target_include_directories(ada-mimesniff-include-source INTERFACE $<BUILD_INTERF
 add_library(ada-mimesniff-source INTERFACE)
 target_sources(ada-mimesniff-source INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/mimesniff.cpp)
 target_link_libraries(ada-mimesniff-source INTERFACE ada-include-source)
-add_library(ada-mimesniff STATIC mimesniff.cpp)
+add_library(ada-mimesniff STATIC mimesniff.cpp util.cpp parser.cpp ../include/ada/mimesniff/parser.h)
 target_include_directories(ada-mimesniff PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> )
 target_include_directories(ada-mimesniff PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>")
 

@@ -1,0 +1,57 @@
+Determining if the fork exist failed with the following output:
+Change Dir: C:/Users/maitk/Documents/GitHub/mimesniff/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-si9ko4
+
+Run Build Command(s):C:/Users/maitk/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/231.8109.174/bin/ninja/win/x64/ninja.exe cmTC_e5684 && [1/2] Building C object CMakeFiles/cmTC_e5684.dir/CheckSymbolExists.c.obj
+FAILED: CMakeFiles/cmTC_e5684.dir/CheckSymbolExists.c.obj 
+C:\Users\maitk\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\231.8109.174\bin\mingw\bin\gcc.exe   -fdiagnostics-color=always -o CMakeFiles/cmTC_e5684.dir/CheckSymbolExists.c.obj -c C:/Users/maitk/Documents/GitHub/mimesniff/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-si9ko4/CheckSymbolExists.c
+C:/Users/maitk/Documents/GitHub/mimesniff/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-si9ko4/CheckSymbolExists.c: In function 'main':
+C:/Users/maitk/Documents/GitHub/mimesniff/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-si9ko4/CheckSymbolExists.c:8:19: error: 'fork' undeclared (first use in this function)
+    8 |   return ((int*)(&fork))[argc];
+      |                   ^~~~
+C:/Users/maitk/Documents/GitHub/mimesniff/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-si9ko4/CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+ninja: build stopped: subcommand failed.
+
+
+File CheckSymbolExists.c:
+/* */
+#include <unistd.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef fork
+  return ((int*)(&fork))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the wait exist failed with the following output:
+Change Dir: C:/Users/maitk/Documents/GitHub/mimesniff/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-q0gaew
+
+Run Build Command(s):C:/Users/maitk/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/231.8109.174/bin/ninja/win/x64/ninja.exe cmTC_3adbd && [1/2] Building C object CMakeFiles/cmTC_3adbd.dir/CheckSymbolExists.c.obj
+FAILED: CMakeFiles/cmTC_3adbd.dir/CheckSymbolExists.c.obj 
+C:\Users\maitk\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\231.8109.174\bin\mingw\bin\gcc.exe   -fdiagnostics-color=always -o CMakeFiles/cmTC_3adbd.dir/CheckSymbolExists.c.obj -c C:/Users/maitk/Documents/GitHub/mimesniff/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-q0gaew/CheckSymbolExists.c
+C:/Users/maitk/Documents/GitHub/mimesniff/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-q0gaew/CheckSymbolExists.c:2:10: fatal error: sys/wait.h: No such file or directory
+    2 | #include <sys/wait.h>
+      |          ^~~~~~~~~~~~
+compilation terminated.
+ninja: build stopped: subcommand failed.
+
+
+File CheckSymbolExists.c:
+/* */
+#include <sys/wait.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef wait
+  return ((int*)(&wait))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+

@@ -1,0 +1,118 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"/dependencies/.cache/simdjson/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 111,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 117,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 140,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 148,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 168,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "simdjson_Development",
+			"destination" : "include",
+			"paths" : 
+			[
+				"/dependencies/.cache/simdjson/singleheader/simdjson.h"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "simdjson_Development",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"_deps/simdjson/libsimdjson.a"
+			],
+			"targetId" : "simdjson::@9ef5396c47da662c5600",
+			"targetIndex" : 30,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "simdjson_Development",
+			"destination" : "lib/cmake/simdjson",
+			"paths" : 
+			[
+				"cmake-build-debug/_deps/simdjson/simdjson-config.cmake",
+				"cmake-build-debug/_deps/simdjson/simdjson-config-version.cmake"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "example_Development",
+			"destination" : "lib/cmake/simdjson",
+			"exportName" : "simdjsonTargets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "simdjson::@9ef5396c47da662c5600",
+					"index" : 30
+				}
+			],
+			"paths" : 
+			[
+				"_deps/simdjson/CMakeFiles/Export/e9be1f3bf2ac05e81f5c4d20ad32d021/simdjsonTargets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 5,
+			"component" : "Unspecified",
+			"destination" : "lib/pkgconfig",
+			"paths" : 
+			[
+				"cmake-build-debug/_deps/simdjson/simdjson.pc"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "_deps/simdjson",
+		"source" : "/dependencies/.cache/simdjson"
+	}
+}

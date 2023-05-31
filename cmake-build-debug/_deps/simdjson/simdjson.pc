@@ -1,0 +1,11 @@
+prefix=C:/Program Files (x86)/ada-mimesniff
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: simdjson
+Description: Parsing gigabytes of JSON per second
+URL: https://simdjson.org/
+Version: 3.1.0
+Cflags: -I${includedir} -DSIMDJSON_THREADS_ENABLED=1
+Libs: -L${libdir} -lsimdjson
+

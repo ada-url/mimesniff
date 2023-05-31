@@ -1,0 +1,10 @@
+C:\Users\maitk\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\231.8109.174\bin\cmake\win\x64\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=C:/Users/maitk/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/231.8109.174/bin/ninja/win/x64/ninja.exe -G Ninja -S C:\Users\maitk\Documents\GitHub\mimesniff -B C:\Users\maitk\Documents\GitHub\mimesniff\cmake-build-debug
+-- Assuming GCC-like compiler.
+-- Enabling _GLIBCXX_DEBUG
+-- Code formatting is not enabled.
+-- Importing simdjson (simdjson/simdjson@0a3a00c95665cc1fda760e121ba8d442945ede13)
+-- The tests are enabled.
+-- Python found, we are going to amalgamate.py.
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Users/maitk/Documents/GitHub/mimesniff/cmake-build-debug

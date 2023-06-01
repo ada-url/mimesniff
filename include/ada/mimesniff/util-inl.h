@@ -1,5 +1,7 @@
 #ifndef ADA_MIMESNIFF_UTIL_INL_H
 #define ADA_MIMESNIFF_UTIL_INL_H
+#include <algorithm>
+#include <cctype>
 #include <string_view>
 #include "ada/mimesniff/util.h"
 namespace ada::mimesniff {

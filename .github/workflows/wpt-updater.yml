@@ -1,0 +1,33 @@
+name: Update WPT
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+concurrency:
+  group: wpt-updater
+  cancel-in-progress: true
+
+jobs:
+  issue:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+      - name: Fetch tests
+        run: tools/update-wpt.sh
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@284f54f989303d2699d373481a0cfa13ad5a6666 #v5.0.1
+        with:
+          token: ${{ env.GITHUB_TOKEN }}
+          commit-message: "test: update web platform tests"
+          branch: "automatic-update-wpt"
+          title: "Update web platform tests"
+          body: "This is an automated pull request for updating the WPT"
+          reviewers: "lemire,anonrig,KhafraDev"
+          delete-branch: true

@@ -1,6 +1,4 @@
-#include "util.cpp"
-
-#include <string>
+#include "ada/mimesniff/util-inl.h"
 
 namespace ada::mimesniff {
 void parse_mime_type(std::string_view input) {

@@ -1,9 +1,11 @@
-#include <string>
-
+#ifndef ADA_MIMESNIFF_UTIL_H
+#define ADA_MIMESNIFF_UTIL_H
+#include <string_view>
 namespace ada::mimesniff {
-void trim_http_whitespace(std::string_view& input);
+constexpr inline void trim_http_whitespace(std::string_view& input);
 
-bool is_http_whitespace(const char c);
+constexpr inline bool is_http_whitespace(const char c);
 
-bool contains_only_http_tokens(std::string_view view);
+constexpr inline bool contains_only_http_tokens(std::string_view view);
 }  // namespace ada::mimesniff
+#endif

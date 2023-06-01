@@ -36,3 +36,7 @@ build
 .cache
 .idea
 cmake-build-debug
+singleheader/ada_mimesniff.cpp
+singleheader/ada_mimesniff.h
+singleheader/singleheader.zip
+demo.o

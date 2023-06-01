@@ -19,7 +19,7 @@ constexpr inline void trim_http_whitespace(std::string_view& input) {
 }
 
 // alphanum = 1, symbols = 2, other = 0
-constexpr static uint8_t[256] http_tokens = {
+constexpr static uint8_t http_tokens[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 2, 2, 2, 2, 0, 0, 2, 2, 0, 2, 2, 0,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,

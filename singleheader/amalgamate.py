@@ -3,6 +3,7 @@
 # Creates the amalgamated source files.
 #
 
+import zipfile
 import sys
 import os.path
 import subprocess
@@ -18,9 +19,6 @@ SCRIPTPATH = os.path.dirname(os.path.abspath(sys.argv[0]))
 PROJECTPATH = os.path.dirname(SCRIPTPATH)
 print(f"SCRIPTPATH={SCRIPTPATH} PROJECTPATH={PROJECTPATH}")
 
-
-print("We are about to amalgamate all mimesniff files into one source file.")
-print("See https://www.sqlite.org/amalgamation.html and https://en.wikipedia.org/wiki/Single_Compilation_Unit for rationale.")
 if "AMALGAMATE_SOURCE_PATH" not in os.environ:
     AMALGAMATE_SOURCE_PATH = os.path.join(PROJECTPATH, "src")
 else:
@@ -34,7 +32,6 @@ if "AMALGAMATE_OUTPUT_PATH" not in os.environ:
 else:
     AMALGAMATE_OUTPUT_PATH = os.environ["AMALGAMATE_OUTPUT_PATH"]
 
-AMALGAMATE_UNILIB_SOURCE_PATH = AMALGAMATE_SOURCE_PATH +"/unilib"
 # this list excludes the "src/generic headers"
 ALLCFILES = ["mimesniff.cpp"]
 
@@ -43,21 +40,14 @@ ALLCHEADERS = ["mimesniff.h"]
 
 found_includes = []
 
-found_unilib = []
+current_implementation=''
 
-def doinclude(fid, file, line, origin):
-    if(file == "uninorms.h"): return #exception
+def doinclude(fid: str, file: str, line: str, origin: str) -> None:
 
     p = os.path.join(AMALGAMATE_INCLUDE_PATH, file)
     pi = os.path.join(AMALGAMATE_SOURCE_PATH, file)
-    puni = os.path.join(AMALGAMATE_UNILIB_SOURCE_PATH, file)
-    if os.path.exists(puni):
-        if file not in found_unilib:
-            found_unilib.append(file)
-            dofile(fid, AMALGAMATE_UNILIB_SOURCE_PATH, file)
-        else:
-            pass
-    elif os.path.exists(p):
+
+    if os.path.exists(p):
         if file not in found_includes:
             found_includes.append(file)
             dofile(fid, AMALGAMATE_INCLUDE_PATH, file)
@@ -74,25 +64,26 @@ def doinclude(fid, file, line, origin):
         print("unrecognized:", file, " from ", line, " in ", origin)
         print(line, file=fid)
 
-def dofile(fid, prepath, filename):
+def dofile(fid: str, prepath: str, filename: str) -> None:
     file = os.path.join(prepath, filename)
     RELFILE = os.path.relpath(file, PROJECTPATH)
     # Last lines are always ignored. Files should end by an empty lines.
     print(f"/* begin file {RELFILE} */", file=fid)
-    includepattern = re.compile('\s*#\s*include "(.*)"')
+    includepattern = re.compile('\\s*#\\s*include "(.*)"')
     with open(file, 'r') as fid2:
         for line in fid2:
             line = line.rstrip('\n')
             s = includepattern.search(line)
             if s:
                 includedfile = s.group(1)
+                if includedfile == "mimesniff.h" and filename == "mimesniff.cpp":
+                    print(line, file=fid)
+                    continue
 
                 if includedfile.startswith('../'):
                     includedfile = includedfile[2:]
-                # we explicitly include mimesniff headers, one time each 
+                # we explicitly include ada headers, one time each
                 doinclude(fid, includedfile, line, filename)
-            elif line.startswith("#pragma once"):
-                continue
             else:
                 print(line, file=fid)
     print(f"/* end file {RELFILE} */", file=fid)
@@ -112,8 +103,8 @@ except:
 print(f"timestamp is {timestamp}")
 
 os.makedirs(AMALGAMATE_OUTPUT_PATH, exist_ok=True)
-AMAL_H = os.path.join(AMALGAMATE_OUTPUT_PATH, "ada_mimesniff.h")
-AMAL_C = os.path.join(AMALGAMATE_OUTPUT_PATH, "ada_mimesniff.cpp")
+AMAL_H = os.path.join(AMALGAMATE_OUTPUT_PATH, "mimesniff.h")
+AMAL_C = os.path.join(AMALGAMATE_OUTPUT_PATH, "mimesniff.cpp")
 DEMOCPP = os.path.join(AMALGAMATE_OUTPUT_PATH, "cpp")
 README = os.path.join(AMALGAMATE_OUTPUT_PATH, "README.md")
 
@@ -137,16 +128,15 @@ amal_c.close()
 # copy the README and DEMOCPP
 if SCRIPTPATH != AMALGAMATE_OUTPUT_PATH:
   shutil.copy2(os.path.join(SCRIPTPATH,"demo.cpp"),AMALGAMATE_OUTPUT_PATH)
+  shutil.copy2(os.path.join(SCRIPTPATH,"demo.c"),AMALGAMATE_OUTPUT_PATH)
   shutil.copy2(os.path.join(SCRIPTPATH,"README.md"),AMALGAMATE_OUTPUT_PATH)
 
-import zipfile
 zf = zipfile.ZipFile(os.path.join(AMALGAMATE_OUTPUT_PATH,'singleheader.zip'), 'w', zipfile.ZIP_DEFLATED)
-zf.write(os.path.join(AMALGAMATE_OUTPUT_PATH,"ada_mimesniff.cpp"), "ada_mimesniff.cpp")
-zf.write(os.path.join(AMALGAMATE_OUTPUT_PATH,"ada_mimesniff.h"), "ada_mimesniff.h")
+zf.write(os.path.join(AMALGAMATE_OUTPUT_PATH,"mimesniff.cpp"), "mimesniff.cpp")
+zf.write(os.path.join(AMALGAMATE_OUTPUT_PATH,"mimesniff.h"), "mimesniff.h")
 
 
 print("Done with all files generation.")
 
 print(f"Files have been written to directory: {AMALGAMATE_OUTPUT_PATH}/")
 print("Done with all files generation.")
-

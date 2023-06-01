@@ -3,7 +3,7 @@
 #include <string>
 
 namespace ada::mimesniff {
-void parse_mime_type (std::string_view input) {
+void parse_mime_type(std::string_view input) {
   // step 1
   trim_http_whitespace(input);
 
@@ -26,4 +26,4 @@ void parse_mime_type (std::string_view input) {
   // step 6
   position++;
 }
-}
+}  // namespace ada::mimesniff

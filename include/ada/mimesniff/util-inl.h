@@ -1,6 +1,5 @@
 #ifndef ADA_MIMESNIFF_UTIL_INL_H
 #define ADA_MIMESNIFF_UTIL_INL_H
-#include <algorithm>
 #include <string_view>
 
 #include "ada/mimesniff/util.h"
@@ -43,7 +42,11 @@ constexpr inline bool contains_only_http_tokens(std::string_view view) {
   // U+0025 (%), U+0026 (&), U+0027 ('), U+002A (*), U+002B (+), U+002D (-),
   // U+002E (.), U+005E (^), U+005F (_), U+0060 (`), U+007C (|), U+007E (~), or
   // an ASCII alphanumeric.
-  return (std::all_of(view.begin(), view.end(), is_http_token));
+  for(const char c : view) {
+    // if it is not a token, return false
+    if(!is_http_token(c)) { return false; }
+  }
+  return true;
 }
 }  // namespace ada::mimesniff
 #endif

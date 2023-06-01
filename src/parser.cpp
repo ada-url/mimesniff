@@ -8,10 +8,10 @@ void parse_mime_type(std::string_view input) {
   trim_http_whitespace(input);
 
   // step 2
-  int position = input.find_first_of('/');
+  size_t position = input.find_first_of('/');
 
   // step 5
-  if (position == std::string_view::npos || position == input.length()) {
+  if (position == std::string_view::npos || position == 0) {
     return;
   }
 

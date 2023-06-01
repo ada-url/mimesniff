@@ -4,6 +4,8 @@
 namespace ada::mimesniff {
 constexpr inline void trim_http_whitespace(std::string_view& input);
 
+constexpr inline void trim_trailing_http_whitespace(std::string_view& input);
+
 constexpr inline bool is_http_whitespace(const char c);
 
 constexpr inline bool contains_only_http_tokens(std::string_view view);

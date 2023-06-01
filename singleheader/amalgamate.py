@@ -103,9 +103,9 @@ except:
 print(f"timestamp is {timestamp}")
 
 os.makedirs(AMALGAMATE_OUTPUT_PATH, exist_ok=True)
-AMAL_H = os.path.join(AMALGAMATE_OUTPUT_PATH, "mimesniff.h")
-AMAL_C = os.path.join(AMALGAMATE_OUTPUT_PATH, "mimesniff.cpp")
-DEMOCPP = os.path.join(AMALGAMATE_OUTPUT_PATH, "cpp")
+AMAL_H = os.path.join(AMALGAMATE_OUTPUT_PATH, "ada_mimesniff.h")
+AMAL_C = os.path.join(AMALGAMATE_OUTPUT_PATH, "ada_mimesniff.cpp")
+DEMOCPP = os.path.join(AMALGAMATE_OUTPUT_PATH, "demo.cpp")
 README = os.path.join(AMALGAMATE_OUTPUT_PATH, "README.md")
 
 print(f"Creating {AMAL_H}")
@@ -128,12 +128,11 @@ amal_c.close()
 # copy the README and DEMOCPP
 if SCRIPTPATH != AMALGAMATE_OUTPUT_PATH:
   shutil.copy2(os.path.join(SCRIPTPATH,"demo.cpp"),AMALGAMATE_OUTPUT_PATH)
-  shutil.copy2(os.path.join(SCRIPTPATH,"demo.c"),AMALGAMATE_OUTPUT_PATH)
   shutil.copy2(os.path.join(SCRIPTPATH,"README.md"),AMALGAMATE_OUTPUT_PATH)
 
 zf = zipfile.ZipFile(os.path.join(AMALGAMATE_OUTPUT_PATH,'singleheader.zip'), 'w', zipfile.ZIP_DEFLATED)
-zf.write(os.path.join(AMALGAMATE_OUTPUT_PATH,"mimesniff.cpp"), "mimesniff.cpp")
-zf.write(os.path.join(AMALGAMATE_OUTPUT_PATH,"mimesniff.h"), "mimesniff.h")
+zf.write(os.path.join(AMALGAMATE_OUTPUT_PATH,"ada_mimesniff.cpp"), "ada_mimesniff.cpp")
+zf.write(os.path.join(AMALGAMATE_OUTPUT_PATH,"ada_mimesniff.h"), "ad_mimesniff.h")
 
 
 print("Done with all files generation.")

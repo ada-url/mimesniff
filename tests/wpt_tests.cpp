@@ -12,7 +12,8 @@ using namespace simdjson;
 #ifndef WPT_DATA_DIR
 #define WPT_DATA_DIR "wpt/"
 #endif
-const char *GENERATED_MIME_TYPES_JSON = WPT_DATA_DIR "generated-mime-types.json";
+const char *GENERATED_MIME_TYPES_JSON =
+    WPT_DATA_DIR "generated-mime-types.json";
 const char *MIME_TYPES_JSON = WPT_DATA_DIR "mime-types.json";
 
 bool file_exists(const char *filename) {
@@ -48,10 +49,10 @@ TEST(wpt_tests, mime_types) {
     }
   } catch (simdjson::simdjson_error &error) {
     std::cerr << "JSON error: " << error.what() << " near "
-              << doc.current_location() << " in " << MIME_TYPES_JSON << std::endl;
+              << doc.current_location() << " in " << MIME_TYPES_JSON
+              << std::endl;
     FAIL();
   }
   std::cout << "Tests executed = " << counter << std::endl;
   SUCCEED();
 }
-

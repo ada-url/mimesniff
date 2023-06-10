@@ -2,6 +2,7 @@
 #define ADA_MIMESNIFF_MIMETYPE_H
 
 #include <map>
+#include <string>
 #include <string_view>
 
 namespace ada::mimesniff {

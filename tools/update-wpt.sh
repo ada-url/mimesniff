@@ -21,5 +21,5 @@ git clone \
   --sparse \
   https://github.com/web-platform-tests/wpt.git wpt
 cd wpt
-git sparse-checkout set "mimesniff/resources"
-cp mimesniff/resources/*.json "$WPT_DIR"
+git sparse-checkout set "mimesniff/mime-types/resources"
+cp mimesniff/mime-types/resources/*.json "$WPT_DIR"

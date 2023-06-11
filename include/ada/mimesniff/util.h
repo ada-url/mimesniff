@@ -28,5 +28,11 @@ inline std::string collect_http_quoted_string(std::string_view input,
                                               size_t& position,
                                               bool extract_value = false);
 
+/**
+ * Lowers the string in-place, assuming that the content is ASCII.
+ * Return true if the content was ASCII.
+ */
+constexpr bool to_lower_ascii(char* input, size_t length) noexcept;
+
 }  // namespace ada::mimesniff
 #endif

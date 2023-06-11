@@ -31,6 +31,19 @@ struct mimetype {
   std::string essence() const noexcept {
     return std::string(type) + "/" + std::string(subtype);
   }
+
+  std::string parsed() const noexcept {
+    std::string base = std::string(type) + "/" + std::string(subtype);
+
+    if (!parameters.empty()) {
+      for (const auto &i : parameters) {
+        base += ";";
+        base += std::string(i.first) + "=" + i.second;
+      }
+    }
+
+    return base;
+  }
 };
 
 }  // namespace ada::mimesniff

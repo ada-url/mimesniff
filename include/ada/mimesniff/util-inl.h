@@ -1,6 +1,7 @@
 #ifndef ADA_MIMESNIFF_UTIL_INL_H
 #define ADA_MIMESNIFF_UTIL_INL_H
 
+#include <cstring>
 #include <string>
 #include <string_view>
 
@@ -78,10 +79,8 @@ constexpr inline bool contains_only_http_quoted_string_tokens(
 }
 
 inline std::string collect_http_quoted_string(std::string_view input,
-                                              size_t& position,
-                                              bool extract_value) {
-  size_t position_start = position;
-  std::string value = "";
+                                              size_t& position) {
+  std::string value{};
 
   // TODO: Assert: the code point at position within input is U+0022 (").
 
@@ -98,7 +97,7 @@ inline std::string collect_http_quoted_string(std::string_view input,
     }
 
     value.append(input.substr(position, end_index));
-    position += end_index;
+    position = end_index;
 
     // Let quoteOrBackslash be the code point at position within input.
     auto quote_or_backslash = input[position];
@@ -126,15 +125,7 @@ inline std::string collect_http_quoted_string(std::string_view input,
     }
   }
 
-  // If extract-value is true, then return value.
-  // Optimization opportunity: No need to copy string if extract_value is false.
-  if (extract_value) {
-    return value;
-  }
-
-  // Return the code points from positionStart to position, inclusive, within
-  // input.
-  return std::string(input.substr(position_start, position));
+  return value;
 }
 
 constexpr bool to_lower_ascii(char* input, size_t length) noexcept {

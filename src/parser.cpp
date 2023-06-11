@@ -1,4 +1,3 @@
-#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
@@ -120,8 +119,8 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     // If the code point at position within input is U+0022 ("), then:
     if (input[position] == '"') {
       // Set parameterValue to the result of collecting an HTTP quoted string
-      // from input, given position and true.
-      parameter_value = collect_http_quoted_string(input, position, true);
+      // from input.
+      parameter_value = collect_http_quoted_string(input, position);
 
       // Collect a sequence of code points that are not U+003B (;) from input,
       // given position.

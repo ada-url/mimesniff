@@ -1,8 +1,11 @@
 #ifndef ADA_MIMESNIFF_UTIL_INL_H
 #define ADA_MIMESNIFF_UTIL_INL_H
+
+#include <string>
 #include <string_view>
 
 #include "ada/mimesniff/util.h"
+
 namespace ada::mimesniff {
 
 // https://fetch.spec.whatwg.org/#http-whitespace
@@ -56,5 +59,83 @@ constexpr inline bool contains_only_http_tokens(std::string_view view) {
   }
   return true;
 }
+
+constexpr static inline bool is_http_quoted_string_token(const char c) {
+  // An HTTP quoted-string token code point is U+0009 TAB, a code point in the
+  // range U+0020 SPACE to U+007E (~), inclusive, or a code point in the range
+  // U+0080 through U+00FF (ÿ), inclusive.
+  return (c == '\t' || (c >= ' ' && c <= '~') || (c >= '\x80' && c <= '\xFF'));
+}
+
+constexpr inline bool contains_only_http_quoted_string_tokens(
+    std::string_view view) {
+  for (const char c : view) {
+    if (!is_http_quoted_string_token(c)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+inline std::string collect_http_quoted_string(std::string_view input,
+                                              size_t& position,
+                                              bool extract_value) {
+  size_t position_start = position;
+  std::string value = "";
+
+  // TODO: Assert: the code point at position within input is U+0022 (").
+
+  position++;
+
+  while (true) {
+    // Append the result of collecting a sequence of code points that are not
+    // U+0022 (") or U+005C (\) from input, given position, to value.
+    auto end_index = input.find_first_of("\"\\", position);
+
+    // If position is past the end of input, then break.
+    if (end_index == std::string_view::npos) {
+      break;
+    }
+
+    value.append(input.substr(position, end_index));
+    position += end_index;
+
+    // Let quoteOrBackslash be the code point at position within input.
+    auto quote_or_backslash = input[position];
+
+    // Advance position by 1.
+    position++;
+
+    // If quoteOrBackslash is U+005C (\), then:
+    if (quote_or_backslash == '\\') {
+      // If position is past the end of input, then append U+005C (\) to value
+      // and break.
+      if (position >= input.size()) {
+        value += "\\";
+        break;
+      }
+
+      // Append the code point at position within input to value.
+      value += input[position];
+
+      // Advance position by 1.
+      position++;
+    } else {
+      // TODO: Assert: quoteOrBackslash is U+0022 (").
+      break;
+    }
+  }
+
+  // If extract-value is true, then return value.
+  // Optimization opportunity: No need to copy string if extract_value is false.
+  if (extract_value) {
+    return value;
+  }
+
+  // Return the code points from positionStart to position, inclusive, within
+  // input.
+  return std::string(input.substr(position_start, position));
+}
+
 }  // namespace ada::mimesniff
 #endif

@@ -1,5 +1,6 @@
-#include <string>
+#include <map>
 #include <optional>
+#include <string>
 
 #include "ada/mimesniff/util-inl.h"
 #include "ada/mimesniff/util.h"
@@ -101,15 +102,56 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     }
 
     // Let parameterValue be null.
-    std::string_view parameter_value{};
+    std::string parameter_value{};
 
     // If the code point at position within input is U+0022 ("), then:
     if (input[position] == '"') {
       // Set parameterValue to the result of collecting an HTTP quoted string
       // from input, given position and true.
+      parameter_value = collect_http_quoted_string(input, position, true);
+
+      // Collect a sequence of code points that are not U+003B (;) from input,
+      // given position.
+      auto semicolon_index = input.find_first_of(';', position);
+
+      position = semicolon_index == std::string_view::npos ? input.size()
+                                                           : semicolon_index;
+    } else {
+      // Set parameterValue to the result of collecting a sequence of code
+      // points that are not U+003B (;) from input, given position.
+      auto semicolon_index = input.find_first_of(';', position);
+
+      std::string_view parameter_value_view =
+          input.substr(position, semicolon_index == std::string_view::npos
+                                     ? input.size()
+                                     : semicolon_index);
+
+      // Remove any trailing HTTP whitespace from parameterValue.
+      trim_http_whitespace(parameter_value_view);
+
+      parameter_value = std::string(parameter_value_view);
+
+      // If parameterValue is the empty string, then continue.
+      if (parameter_value.empty()) {
+        continue;
+      }
+    }
+
+    // If all of the following are true
+    // - parameterName is not the empty string
+    // - parameterName solely contains HTTP token code points
+    // - parameterValue solely contains HTTP quoted-string token code points
+    // - mimeType’s parameters[parameterName] does not exist
+    if (!parameter_name.empty() && contains_only_http_tokens(parameter_name) &&
+        contains_only_http_quoted_string_tokens(
+            std::string_view(parameter_value.data(), parameter_value.size())) &&
+        out.parameters.find(parameter_name) != out.parameters.end()) {
+      // then set mimeType’s parameters[parameterName] to parameterValue.
+      out.parameters.insert({parameter_name, parameter_value});
     }
   }
 
+  // Return mimeType.
   return out;
 }
 

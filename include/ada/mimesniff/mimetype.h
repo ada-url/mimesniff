@@ -24,7 +24,7 @@ struct mimetype {
   // A MIME type’s parameters is an ordered map whose keys are ASCII
   // strings and values are strings limited to HTTP quoted-string token code
   // points. It is initially empty.
-  std::map<std::string_view, std::string_view> parameters{};
+  std::map<std::string_view, std::string> parameters{};
 
   // The essence of a MIME type mimeType is mimeType’s type, followed by U+002F
   // (/), followed by mimeType’s subtype.

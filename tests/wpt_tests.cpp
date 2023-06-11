@@ -22,11 +22,11 @@ bool file_exists(const char *filename) {
   return std::filesystem::exists(filename);
 }
 
-TEST(wpt_tests, mime_types) {
+TEST(wpt_tests, generated_mime_types) {
   ondemand::parser parser;
 
-  ASSERT_TRUE(file_exists(MIME_TYPES_JSON));
-  padded_string json = padded_string::load(MIME_TYPES_JSON);
+  ASSERT_TRUE(file_exists(GENERATED_MIME_TYPES_JSON));
+  padded_string json = padded_string::load(GENERATED_MIME_TYPES_JSON);
   ondemand::document doc = parser.iterate(json);
   try {
     for (auto element : doc.get_array()) {

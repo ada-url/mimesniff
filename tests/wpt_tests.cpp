@@ -24,7 +24,6 @@ bool file_exists(const char *filename) {
 
 TEST(wpt_tests, mime_types) {
   ondemand::parser parser;
-  size_t counter{0};
 
   ASSERT_TRUE(file_exists(MIME_TYPES_JSON));
   padded_string json = padded_string::load(MIME_TYPES_JSON);
@@ -35,16 +34,20 @@ TEST(wpt_tests, mime_types) {
         std::cout << "   section: " << element.get_string() << std::endl;
       } else if (element.type() == ondemand::json_type::object) {
         ondemand::object object = element.get_object();
-        auto element_string = std::string(std::string_view(object.raw_json()));
-        object.reset();
+        std::string_view input = object["input"];
+        std::string_view output{};
+        bool has_null_output = object["output"].get(output);
 
-        // We might want to decode the strings into UTF-8, but some of the
-        // strings are not always valid UTF-8 (e.g., you have unmatched
-        // surrogates which are forbidden by the UTF-8 spec).
-        auto input_element = object["input"];
-        auto output_element = object["output"];
+        std::cout << "    input: " << input << std::endl;
+        std::cout << "    output: " << output << std::endl;
 
-        counter++;
+        auto out = ada::mimesniff::parse_mime_type(input);
+
+        ASSERT_EQ(out.has_value(), !has_null_output);
+
+        if (!has_null_output) {
+          ASSERT_EQ(out->parsed(), output);
+        }
       }
     }
   } catch (simdjson::simdjson_error &error) {
@@ -53,6 +56,5 @@ TEST(wpt_tests, mime_types) {
               << std::endl;
     FAIL();
   }
-  std::cout << "Tests executed = " << counter << std::endl;
   SUCCEED();
 }

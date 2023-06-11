@@ -1,3 +1,4 @@
+#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
@@ -19,7 +20,9 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
 
   // Let type be the result of collecting a sequence of code points that are not
   // U+002F (/) from input, given position.
-  std::string_view type = input.substr(0, type_end_position);
+  // Optimization opportunity: Copy is only required if type is not
+  // lowercased.
+  std::string type = std::string(input.substr(0, type_end_position));
 
   // If type is the empty string or does not solely contain HTTP token code
   // points, then return failure.
@@ -45,10 +48,14 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
 
   // 7. Let subtype be the result of collecting a sequence of code
   //    points that are not U+003B (;) from input, given position.
-  std::string_view subtype = input.substr(0, subtype_end_position);
+  std::string_view _subtype = input.substr(0, subtype_end_position);
 
   // 8. Remove any trailing HTTP whitespace from subtype.
-  trim_trailing_http_whitespace(subtype);
+  trim_trailing_http_whitespace(_subtype);
+
+  // Optimization opportunity: Copy is only required if subtype is not
+  // lowercased.
+  std::string subtype = std::string(_subtype);
 
   // 9. If subtype is the empty string or does not solely contain
   //    HTTP token code points, then return failure.
@@ -62,8 +69,12 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
   // Let mimeType be a new MIME type record whose type is type, in ASCII
   // lowercase, and subtype is subtype, in ASCII lowercase.
   auto out = mimetype();
-  out.type = type;        // TODO: Convert this to ASCII lowercase
-  out.subtype = subtype;  // TODO: Convert this to ASCII lowercase
+
+  to_lower_ascii(type.data(), type.size());
+  to_lower_ascii(subtype.data(), subtype.size());
+
+  out.type = type;
+  out.subtype = subtype;
 
   size_t position{0};
 
@@ -81,24 +92,26 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     // Let parameterName be the result of collecting a sequence of code points
     // that are not U+003B (;) or U+003D (=) from input, given position.
     auto parameter_name_ending = input.find_first_of(";=", position);
-    std::string_view parameter_name =
-        input.substr(position, parameter_name_ending == std::string_view::npos
-                                   ? input.size()
-                                   : parameter_name_ending);
-    position += parameter_name_ending;
-    // TODO: Set parameterName to parameterName, in ASCII lowercase.
 
-    // If position is not past the end of input, then:
-    if (position < input.size()) {
+    std::string parameter_name{};
+
+    if (parameter_name_ending == std::string_view::npos) {
+      // If position is past the end of input, then break.
+      break;
+    } else {
+      // Optimization opportunity: Copy is only required if parameter_name is
+      // not lowercased.
+      parameter_name =
+          std::string(input.substr(position, parameter_name_ending - 1));
+      to_lower_ascii(parameter_name.data(), parameter_name.size());
+      position = parameter_name_ending;
+
       // If the code point at position within input is U+003B (;), then
       // continue.
       if (input[position] == ';') continue;
 
       // Advance position by 1. (This skips past U+003D (=).)
       position++;
-    } else {
-      // If position is past the end of input, then break.
-      break;
     }
 
     // Let parameterValue be null.
@@ -121,10 +134,12 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       // points that are not U+003B (;) from input, given position.
       auto semicolon_index = input.find_first_of(';', position);
 
+      if (semicolon_index == std::string_view::npos) {
+        semicolon_index = input.size();
+      }
+
       std::string_view parameter_value_view =
-          input.substr(position, semicolon_index == std::string_view::npos
-                                     ? input.size()
-                                     : semicolon_index);
+          input.substr(position, semicolon_index);
 
       // Remove any trailing HTTP whitespace from parameterValue.
       trim_http_whitespace(parameter_value_view);
@@ -145,7 +160,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     if (!parameter_name.empty() && contains_only_http_tokens(parameter_name) &&
         contains_only_http_quoted_string_tokens(
             std::string_view(parameter_value.data(), parameter_value.size())) &&
-        out.parameters.find(parameter_name) != out.parameters.end()) {
+        out.parameters.find(parameter_name) == out.parameters.end()) {
       // then set mimeType’s parameters[parameterName] to parameterValue.
       out.parameters.insert({parameter_name, parameter_value});
     }

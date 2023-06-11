@@ -16,24 +16,22 @@ struct mimetype {
   ~mimetype() = default;
 
   // A MIME type’s type is a non-empty ASCII string.
-  std::string_view type{};
+  std::string type{};
 
   // A MIME type’s subtype is a non-empty ASCII string.
-  std::string_view subtype{};
+  std::string subtype{};
 
   // A MIME type’s parameters is an ordered map whose keys are ASCII
   // strings and values are strings limited to HTTP quoted-string token code
   // points. It is initially empty.
-  std::map<std::string_view, std::string> parameters{};
+  std::map<std::string, std::string> parameters{};
 
   // The essence of a MIME type mimeType is mimeType’s type, followed by U+002F
   // (/), followed by mimeType’s subtype.
-  std::string essence() const noexcept {
-    return std::string(type) + "/" + std::string(subtype);
-  }
+  std::string essence() const noexcept { return type + "/" + subtype; }
 
   std::string parsed() const noexcept {
-    std::string base = std::string(type) + "/" + std::string(subtype);
+    std::string base = essence();
 
     for (const auto &i : parameters) {
       base += ";";

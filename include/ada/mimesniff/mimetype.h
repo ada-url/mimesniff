@@ -35,11 +35,9 @@ struct mimetype {
   std::string parsed() const noexcept {
     std::string base = std::string(type) + "/" + std::string(subtype);
 
-    if (!parameters.empty()) {
-      for (const auto &i : parameters) {
-        base += ";";
-        base += std::string(i.first) + "=" + i.second;
-      }
+    for (const auto &i : parameters) {
+      base += ";";
+      base += std::string(i.first) + "=" + i.second;
     }
 
     return base;

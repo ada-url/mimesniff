@@ -74,30 +74,30 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
 
     // Collect a sequence of code points that are HTTP whitespace from input
     // given position.
-    while (is_http_whitespace(input[position])) {
+    while (is_http_whitespace(input[position]) && position < input.size()) {
       position++;
     }
 
     // Let parameterName be the result of collecting a sequence of code points
     // that are not U+003B (;) or U+003D (=) from input, given position.
-    size_t parameter_name_ending = input.find_first_of(";=", position);
+    auto parameter_name_ending = input.find_first_of(";=", position);
     std::string_view parameter_name =
-        input.substr(position, parameter_name_ending);
+        input.substr(position, parameter_name_ending == std::string_view::npos
+                                   ? input.size()
+                                   : parameter_name_ending);
     position += parameter_name_ending;
     // TODO: Set parameterName to parameterName, in ASCII lowercase.
 
     // If position is not past the end of input, then:
-    if (position == std::string_view::npos) {
+    if (position < input.size()) {
       // If the code point at position within input is U+003B (;), then
       // continue.
       if (input[position] == ';') continue;
 
       // Advance position by 1. (This skips past U+003D (=).)
       position++;
-    }
-
-    // If position is past the end of input, then break.
-    if (position >= input.size()) {
+    } else {
+      // If position is past the end of input, then break.
       break;
     }
 

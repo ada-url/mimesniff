@@ -5,6 +5,9 @@
 #include <string>
 #include <string_view>
 
+#include "ada/mimesniff/util-inl.h"
+#include "ada/mimesniff/util.h"
+
 namespace ada::mimesniff {
 
 struct mimetype {
@@ -30,12 +33,22 @@ struct mimetype {
   // (/), followed by mimeType’s subtype.
   std::string essence() const noexcept { return type + "/" + subtype; }
 
-  std::string parsed() const noexcept {
+  /**
+   * @see https://mimesniff.spec.whatwg.org/#serializing-a-mime-type
+   */
+  std::string serialized() const noexcept {
     std::string base = essence();
 
     for (const auto &i : parameters) {
       base += ";";
-      base += std::string(i.first) + "=" + i.second;
+      base += std::string(i.first) + "=";
+
+      if (i.second.empty() || !contains_only_http_tokens(i.second)) {
+        // TODO: Precede each occurrence of U+0022 (") or U+005C (\) in value with U+005C (\).
+        base += "\"" + i.second + "\"";
+      } else {
+        base += i.second;
+      }
     }
 
     return base;

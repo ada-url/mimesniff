@@ -46,7 +46,7 @@ TEST(wpt_tests, generated_mime_types) {
         ASSERT_EQ(out.has_value(), !has_null_output);
 
         if (!has_null_output) {
-          ASSERT_EQ(out->parsed(), output);
+          ASSERT_EQ(out->serialized(), output);
         }
       }
     }

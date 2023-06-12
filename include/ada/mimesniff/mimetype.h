@@ -44,8 +44,17 @@ struct mimetype {
       base += std::string(i.first) + "=";
 
       if (i.second.empty() || !contains_only_http_tokens(i.second)) {
-        // TODO: Precede each occurrence of U+0022 (") or U+005C (\) in value with U+005C (\).
-        base += "\"" + i.second + "\"";
+        // Precede each occurrence of U+0022 (") or U+005C (\) in value with
+        // U+005C (\).
+        std::string value = i.second;
+        auto ptr = value.find_first_of("\"\\");
+
+        while (ptr != std::string_view::npos) {
+          value.insert(ptr, "\\");
+          ptr = value.find_first_of("\"\\", ptr);
+        }
+
+        base += "\"" + value + "\"";
       } else {
         base += i.second;
       }

@@ -63,20 +63,23 @@ constexpr inline bool contains_only_http_tokens(std::string_view view) {
 
 constexpr inline bool contains_only_http_quoted_string_tokens(
     std::string_view view) {
-  for(size_t i = 0; i < view.size(); i++) {
+  for (size_t i = 0; i < view.size(); i++) {
     const uint8_t c(view[i]);
     // An HTTP quoted-string token code point is U+0009 TAB, a code point in the
     // range U+0020 SPACE to U+007E (~) and...
-    if (c == '\t' || (c >= ' ' && c <= '~') ) {
+    if (c == '\t' || (c >= ' ' && c <= '~')) {
       continue;
     }
     // We need to check for the range U+0080 through U+00FF (ÿ), inclusive.
     // Doing so depends on the encoding.
     // Let us assume UTF-8.
-    if(i+1 == view.size()) { return false; }
-    const uint8_t c2(view[i+1]);
+    if (i + 1 == view.size()) {
+      return false;
+    }
+    const uint8_t c2(view[i + 1]);
     i++;
-    if((c == 0xC2 && c2 >= 0x80 && c2 <= 0xBF) || (c == 0xC3 && c2 >= 0x80 && c2 <= 0xBF)) {
+    if ((c == 0xC2 && c2 >= 0x80 && c2 <= 0xBF) ||
+        (c == 0xC3 && c2 >= 0x80 && c2 <= 0xBF)) {
       continue;
     }
     return false;

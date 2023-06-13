@@ -11,5 +11,5 @@ namespace ada::mimesniff {
 // It is expected to be UTF-8 encoded, which includes ASCII.
 std::optional<mimetype> parse_mime_type(std::string_view input);
 
-}
+}  // namespace ada::mimesniff
 #endif

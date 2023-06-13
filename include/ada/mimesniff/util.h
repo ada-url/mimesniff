@@ -14,6 +14,12 @@ constexpr inline bool is_http_whitespace(char c);
 
 constexpr static inline bool is_http_token(char c);
 
+/**
+ * Assuming that the view is UTF-8 encoded, we return true if its characters are
+ * U+0009 TAB, a code point in the range U+0020 SPACE to U+007E (~) or in the
+ * range U+0080 through U+00FF (ÿ), inclusive. We return false otherwise.
+ * @see https://mimesniff.spec.whatwg.org/#http-token-code-point
+ */
 constexpr inline bool contains_only_http_tokens(std::string_view view);
 
 constexpr static inline bool is_http_quoted_string_token(char c);

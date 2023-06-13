@@ -141,7 +141,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
           input.substr(position, semicolon_index - position);
 
       // Remove any trailing HTTP whitespace from parameterValue.
-      trim_http_whitespace(parameter_value_view);
+      trim_trailing_http_whitespace(parameter_value_view);
 
       parameter_value = std::string(parameter_value_view);
 

@@ -101,7 +101,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       // Optimization opportunity: Copy is only required if parameter_name is
       // not lowercased.
       parameter_name =
-          std::string(input.substr(position, parameter_name_ending - 1));
+          std::string(input.substr(position, parameter_name_ending - position));
       to_lower_ascii(parameter_name.data(), parameter_name.size());
       position = parameter_name_ending;
 
@@ -138,7 +138,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       }
 
       std::string_view parameter_value_view =
-          input.substr(position, semicolon_index);
+          input.substr(position, semicolon_index - position);
 
       // Remove any trailing HTTP whitespace from parameterValue.
       trim_http_whitespace(parameter_value_view);

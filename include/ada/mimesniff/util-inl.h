@@ -61,19 +61,25 @@ constexpr inline bool contains_only_http_tokens(std::string_view view) {
   return true;
 }
 
-constexpr static inline bool is_http_quoted_string_token(const char c) {
-  // An HTTP quoted-string token code point is U+0009 TAB, a code point in the
-  // range U+0020 SPACE to U+007E (~), inclusive, or a code point in the range
-  // U+0080 through U+00FF (ÿ), inclusive.
-  return (c == '\t' || (c >= ' ' && c <= '~') || (c >= '\x80' && c <= '\xFF'));
-}
-
 constexpr inline bool contains_only_http_quoted_string_tokens(
     std::string_view view) {
-  for (const char c : view) {
-    if (!is_http_quoted_string_token(c)) {
-      return false;
+  for(size_t i = 0; i < view.size(); i++) {
+    const uint8_t c(view[i]);
+    // An HTTP quoted-string token code point is U+0009 TAB, a code point in the
+    // range U+0020 SPACE to U+007E (~) and...
+    if (c == '\t' || (c >= ' ' && c <= '~') ) {
+      continue;
     }
+    // We need to check for the range U+0080 through U+00FF (ÿ), inclusive.
+    // Doing so depends on the encoding.
+    // Let us assume UTF-8.
+    if(i+1 == view.size()) { return false; }
+    const uint8_t c2(view[i+1]);
+    i++;
+    if((c == 0xC2 && c2 >= 0x80 && c2 <= 0xBF) || (c == 0xC3 && c2 >= 0x80 && c2 <= 0xBF)) {
+      continue;
+    }
+    return false;
   }
   return true;
 }
@@ -90,13 +96,12 @@ inline std::string collect_http_quoted_string(std::string_view input,
     // Append the result of collecting a sequence of code points that are not
     // U+0022 (") or U+005C (\) from input, given position, to value.
     auto end_index = input.find_first_of("\"\\", position);
-
     // If position is past the end of input, then break.
     if (end_index == std::string_view::npos) {
       break;
     }
 
-    value.append(input.substr(position, end_index));
+    value.append(input.substr(position, end_index - position));
     position = end_index;
 
     // Let quoteOrBackslash be the code point at position within input.

@@ -45,19 +45,19 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     subtype_end_position = input.size();
   }
 
-  // 7. Let subtype be the result of collecting a sequence of code
-  //    points that are not U+003B (;) from input, given position.
+  // Let subtype be the result of collecting a sequence of code
+  // points that are not U+003B (;) from input, given position.
   std::string_view _subtype = input.substr(0, subtype_end_position);
 
-  // 8. Remove any trailing HTTP whitespace from subtype.
+  // Remove any trailing HTTP whitespace from subtype.
   trim_trailing_http_whitespace(_subtype);
 
   // Optimization opportunity: Copy is only required if subtype is not
   // lowercased.
   std::string subtype = std::string(_subtype);
 
-  // 9. If subtype is the empty string or does not solely contain
-  //    HTTP token code points, then return failure.
+  // If subtype is the empty string or does not solely contain
+  // HTTP token code points, then return failure.
   if (subtype.empty() || !contains_only_http_tokens(subtype)) {
     return std::nullopt;
   }
@@ -77,7 +77,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
 
   size_t position{0};
 
-  // 11. While position is not past the end of input:
+  // While position is not past the end of input:
   while (position < input.size()) {
     // Advance position by 1. (This skips past U+003B (;).)
     position++;
@@ -121,7 +121,6 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       // Set parameterValue to the result of collecting an HTTP quoted string
       // from input.
       parameter_value = collect_http_quoted_string(input, position);
-
       // Collect a sequence of code points that are not U+003B (;) from input,
       // given position.
       auto semicolon_index = input.find_first_of(';', position);
@@ -159,7 +158,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     if (!parameter_name.empty() && contains_only_http_tokens(parameter_name) &&
         contains_only_http_quoted_string_tokens(
             std::string_view(parameter_value.data(), parameter_value.size())) &&
-        out.parameters.find(parameter_name) == out.parameters.end()) {
+        !out.parameters.contains_key(parameter_name)) {
       // then set mimeType’s parameters[parameterName] to parameterValue.
       out.parameters.insert({parameter_name, parameter_value});
     }

@@ -90,13 +90,12 @@ inline std::string collect_http_quoted_string(std::string_view input,
     // Append the result of collecting a sequence of code points that are not
     // U+0022 (") or U+005C (\) from input, given position, to value.
     auto end_index = input.find_first_of("\"\\", position);
-
     // If position is past the end of input, then break.
     if (end_index == std::string_view::npos) {
       break;
     }
 
-    value.append(input.substr(position, end_index));
+    value.append(input.substr(position, end_index - position));
     position = end_index;
 
     // Let quoteOrBackslash be the code point at position within input.

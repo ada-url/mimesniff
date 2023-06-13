@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <string_view>
+#include <algorithm>
 
 #include "ada/mimesniff/util-inl.h"
 #include "ada/mimesniff/util.h"

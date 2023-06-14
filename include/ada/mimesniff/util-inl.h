@@ -101,6 +101,7 @@ inline std::string collect_http_quoted_string(std::string_view input,
     auto end_index = input.find_first_of("\"\\", position);
     // If position is past the end of input, then break.
     if (end_index == std::string_view::npos) {
+      value.append(input.substr(position));
       break;
     }
 

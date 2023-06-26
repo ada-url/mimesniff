@@ -29,36 +29,28 @@ constexpr inline void trim_trailing_http_whitespace(std::string_view& input) {
   }
 }
 
-// alphanum = 1, symbols = 2, other = 0
-constexpr static uint8_t http_tokens[256] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 2, 2, 2, 2, 0, 0, 2, 2, 0, 2, 2, 0,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 2, 2,
-    2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+// alphanum/lower = 1, alphaupper = 4, symbols = 2, other = 128
+constexpr static uint8_t http_tokens_map_table[256] = {
+    128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 2, 128, 2, 2, 2, 2, 2, 128, 128, 2, 2, 128, 2, 2, 128, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 128, 128, 128, 128, 128, 128, 128, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 128, 128, 128, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 128, 2, 128, 2, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128};
 
-constexpr static inline bool is_http_token(const char c) {
-  return http_tokens[uint8_t(c)];
+
+constexpr inline uint8_t http_tokens_map(std::string_view view) {
+  // An HTTP token code point is U+0021 (!), U+0023 (#), U+0024 ($),
+  // U+0025 (%), U+0026 (&), U+0027 ('), U+002A (*), U+002B (+), U+002D (-),
+  // U+002E (.), U+005E (^), U+005F (_), U+0060 (`), U+007C (|), U+007E (~), or
+  // an ASCII alphanumeric.
+  uint8_t token = 0;
+  for (const char c : view) {
+    token |= http_tokens_map_table[uint8_t(c)];
+  }
+  return token;
 }
-
 constexpr inline bool contains_only_http_tokens(std::string_view view) {
   // An HTTP token code point is U+0021 (!), U+0023 (#), U+0024 ($),
   // U+0025 (%), U+0026 (&), U+0027 ('), U+002A (*), U+002B (+), U+002D (-),
   // U+002E (.), U+005E (^), U+005F (_), U+0060 (`), U+007C (|), U+007E (~), or
   // an ASCII alphanumeric.
-  for (const char c : view) {
-    // if it is not a token, return false
-    if (!is_http_token(c)) {
-      return false;
-    }
-  }
-  return true;
+  return !(http_tokens_map(view) & 128);
 }
 
 constexpr inline bool contains_only_http_quoted_string_tokens(
@@ -135,6 +127,14 @@ inline std::string collect_http_quoted_string(std::string_view input,
   }
 
   return value;
+}
+
+constexpr void to_lower_ascii_short(char* input, size_t length) noexcept {
+  for(size_t i = 0; i < length; i++) {
+    char c = input[i] | 0x20;
+    if((c >= 'a') && (c <= 'z')) { input[i] = c; }
+  }
+  return;
 }
 
 constexpr bool to_lower_ascii(char* input, size_t length) noexcept {

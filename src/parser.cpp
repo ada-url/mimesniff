@@ -9,6 +9,10 @@
 namespace ada::mimesniff {
 
 std::optional<mimetype> parse_mime_type(std::string_view input) {
+  // Let mimeType be a new MIME type record whose type is type, in ASCII
+  // lowercase, and subtype is subtype, in ASCII lowercase.
+  auto out = mimetype();
+
   // Remove any leading and trailing HTTP whitespace from input.
   trim_http_whitespace(input);
 
@@ -21,12 +25,18 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
   // U+002F (/) from input, given position.
   // Optimization opportunity: Copy is only required if type is not
   // lowercased.
-  std::string type = std::string(input.substr(0, type_end_position));
-
+  std::string_view type = input.substr(0, type_end_position);
+  uint8_t type_map = http_tokens_map(type);
   // If type is the empty string or does not solely contain HTTP token code
   // points, then return failure.
-  if (type.empty() || !contains_only_http_tokens(type)) {
+  if (type.empty() || (type_map&128)) {
     return std::nullopt;
+  }
+
+  out.type = type;
+
+  if(type_map & 4) { // containers uppercase letters
+    to_lower_ascii(out.type.data(), out.type.size());
   }
 
   // Remove type from input. (This skips past U+002F (/).)
@@ -47,33 +57,28 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
 
   // Let subtype be the result of collecting a sequence of code
   // points that are not U+003B (;) from input, given position.
-  std::string_view _subtype = input.substr(0, subtype_end_position);
+  std::string_view subtype = input.substr(0, subtype_end_position);
 
   // Remove any trailing HTTP whitespace from subtype.
-  trim_trailing_http_whitespace(_subtype);
+  trim_trailing_http_whitespace(subtype);
 
   // Optimization opportunity: Copy is only required if subtype is not
   // lowercased.
-  std::string subtype = std::string(_subtype);
-
+  //std::string subtype = std::string(_subtype);
+  uint8_t subtype_map = http_tokens_map(subtype);
   // If subtype is the empty string or does not solely contain
   // HTTP token code points, then return failure.
-  if (subtype.empty() || !contains_only_http_tokens(subtype)) {
+  if (subtype.empty() || (subtype_map&128)) {
     return std::nullopt;
+  }
+  out.subtype = subtype;
+  if(subtype_map & 4) { // containers uppercase letters
+    to_lower_ascii(out.subtype.data(), out.subtype.size());
   }
 
   // Remove subtype from input
   input.remove_prefix(subtype_end_position);
 
-  // Let mimeType be a new MIME type record whose type is type, in ASCII
-  // lowercase, and subtype is subtype, in ASCII lowercase.
-  auto out = mimetype();
-
-  to_lower_ascii(type.data(), type.size());
-  to_lower_ascii(subtype.data(), subtype.size());
-
-  out.type = type;
-  out.subtype = subtype;
 
   size_t position{0};
 
@@ -102,7 +107,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       // not lowercased.
       parameter_name =
           std::string(input.substr(position, parameter_name_ending - position));
-      to_lower_ascii(parameter_name.data(), parameter_name.size());
+      to_lower_ascii_short(parameter_name.data(), parameter_name.size());
       position = parameter_name_ending;
 
       // If the code point at position within input is U+003B (;), then

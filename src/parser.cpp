@@ -159,9 +159,12 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     // - mimeType’s parameters[parameterName] does not exist
     if (!parameter_name.empty() && contains_only_http_tokens(parameter_name) &&
         contains_only_http_quoted_string_tokens(parameter_value) &&
-        !out.parameters.contains_key(parameter_name)) {
+        std::find_if(out.parameters.begin(), out.parameters.end(),
+                     [&parameter_name](const auto& param) {
+                       return param.first == parameter_name;
+                     }) == out.parameters.end()) {
       // then set mimeType’s parameters[parameterName] to parameterValue.
-      out.parameters.insert({parameter_name, parameter_value});
+      out.parameters.emplace_back(parameter_name, parameter_value);
     }
   }
 

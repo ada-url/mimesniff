@@ -79,6 +79,9 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
   // Remove subtype from input
   input.remove_prefix(subtype_end_position);
 
+  // Reserve memory
+  out.parameters.reserve(2);
+
   size_t position{0};
 
   // While position is not past the end of input:

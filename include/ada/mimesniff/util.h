@@ -29,7 +29,6 @@ constexpr inline bool contains_only_http_tokens(std::string_view view);
  */
 constexpr inline uint8_t http_tokens_map(std::string_view view);
 
-
 /**
  * @see https://mimesniff.spec.whatwg.org/#http-quoted-string-token-code-point
  */

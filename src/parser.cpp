@@ -29,13 +29,13 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
   uint8_t type_map = http_tokens_map(type);
   // If type is the empty string or does not solely contain HTTP token code
   // points, then return failure.
-  if (type.empty() || (type_map&128)) {
+  if (type.empty() || (type_map & 128)) {
     return std::nullopt;
   }
 
   out.type = type;
 
-  if(type_map & 4) { // containers uppercase letters
+  if (type_map & 4) {  // containers uppercase letters
     to_lower_ascii(out.type.data(), out.type.size());
   }
 
@@ -64,21 +64,20 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
 
   // Optimization opportunity: Copy is only required if subtype is not
   // lowercased.
-  //std::string subtype = std::string(_subtype);
+  // std::string subtype = std::string(_subtype);
   uint8_t subtype_map = http_tokens_map(subtype);
   // If subtype is the empty string or does not solely contain
   // HTTP token code points, then return failure.
-  if (subtype.empty() || (subtype_map&128)) {
+  if (subtype.empty() || (subtype_map & 128)) {
     return std::nullopt;
   }
   out.subtype = subtype;
-  if(subtype_map & 4) { // containers uppercase letters
+  if (subtype_map & 4) {  // containers uppercase letters
     to_lower_ascii(out.subtype.data(), out.subtype.size());
   }
 
   // Remove subtype from input
   input.remove_prefix(subtype_end_position);
-
 
   size_t position{0};
 

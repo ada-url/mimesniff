@@ -1,4 +1,3 @@
-#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
@@ -10,10 +9,6 @@
 namespace ada::mimesniff {
 
 std::optional<mimetype> parse_mime_type(std::string_view input) {
-  // Let mimeType be a new MIME type record whose type is type, in ASCII
-  // lowercase, and subtype is subtype, in ASCII lowercase.
-  auto out = mimetype();
-
   // Remove any leading and trailing HTTP whitespace from input.
   trim_http_whitespace(input);
 
@@ -30,12 +25,6 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
   // points, then return failure.
   if (type.empty() || (type_map & 128)) {
     return std::nullopt;
-  }
-
-  out.type = type;
-
-  if (type_map & 4) {  // containers uppercase letters
-    to_lower_ascii(out.type.data(), out.type.size());
   }
 
   // Remove type from input. (This skips past U+002F (/).)
@@ -61,7 +50,17 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
   if (subtype.empty() || (subtype_map & 128)) {
     return std::nullopt;
   }
+
+  // Let mimeType be a new MIME type record whose type is type, in ASCII
+  // lowercase, and subtype is subtype, in ASCII lowercase.
+  auto out = mimetype();
+  out.type = type;
   out.subtype = subtype;
+
+  if (type_map & 4) {  // containers uppercase letters
+    to_lower_ascii(out.type.data(), out.type.size());
+  }
+
   if (subtype_map & 4) {  // containers uppercase letters
     to_lower_ascii(out.subtype.data(), out.subtype.size());
   }
@@ -128,16 +127,16 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       // Remove any trailing HTTP whitespace from parameterValue.
       trim_trailing_http_whitespace(parameter_value_view);
 
+      // Collect a sequence of code points that are not U+003B (;) from input,
+      // given position.
+      input.remove_prefix(semicolon_index);
+
       // If parameterValue is the empty string, then continue.
       if (parameter_value_view.empty()) {
         continue;
       }
 
       parameter_value = std::string(parameter_value_view);
-
-      // Collect a sequence of code points that are not U+003B (;) from input,
-      // given position.
-      input.remove_prefix(semicolon_index);
     }
 
     // If all of the following are true

@@ -35,8 +35,7 @@ constexpr inline uint8_t http_tokens_map(std::string_view view);
 constexpr inline bool contains_only_http_quoted_string_tokens(
     std::string_view view);
 
-inline std::string collect_http_quoted_string(std::string_view input,
-                                              size_t& position);
+inline std::string collect_http_quoted_string(std::string_view& input);
 
 /**
  * Lowers the string in-place, assuming that the content is ASCII.

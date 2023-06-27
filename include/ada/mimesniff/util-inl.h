@@ -95,47 +95,46 @@ constexpr inline bool contains_only_http_quoted_string_tokens(
   return true;
 }
 
-inline std::string collect_http_quoted_string(std::string_view input,
-                                              size_t& position) {
+inline std::string collect_http_quoted_string(std::string_view& input) {
   std::string value{};
 
   // TODO: Assert: the code point at position within input is U+0022 (").
 
-  position++;
+  input.remove_prefix(1);
 
   while (true) {
     // Append the result of collecting a sequence of code points that are not
     // U+0022 (") or U+005C (\) from input, given position, to value.
-    auto end_index = input.find_first_of("\"\\", position);
+    auto end_index = input.find_first_of("\"\\");
     // If position is past the end of input, then break.
     if (end_index == std::string_view::npos) {
-      value.append(input.substr(position));
+      value.append(input);
       break;
     }
 
-    value.append(input.substr(position, end_index - position));
-    position = end_index;
+    value.append(input.substr(0, end_index));
+    input.remove_prefix(end_index);
 
     // Let quoteOrBackslash be the code point at position within input.
-    auto quote_or_backslash = input[position];
+    auto quote_or_backslash = input[0];
 
     // Advance position by 1.
-    position++;
+    input.remove_prefix(1);
 
     // If quoteOrBackslash is U+005C (\), then:
     if (quote_or_backslash == '\\') {
       // If position is past the end of input, then append U+005C (\) to value
       // and break.
-      if (position >= input.size()) {
+      if (input.empty()) {
         value += "\\";
         break;
       }
 
       // Append the code point at position within input to value.
-      value += input[position];
+      value += input[0];
 
       // Advance position by 1.
-      position++;
+      input.remove_prefix(1);
     } else {
       // TODO: Assert: quoteOrBackslash is U+0022 (").
       break;

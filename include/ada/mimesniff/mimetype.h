@@ -38,7 +38,7 @@ struct mimetype {
    * @see https://mimesniff.spec.whatwg.org/#serializing-a-mime-type
    */
   std::string serialized() const noexcept {
-    std::string base = essence();
+    std::string base = type + "/" + subtype;
 
     for (const auto &i : parameters) {
       base += ';';

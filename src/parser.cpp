@@ -72,22 +72,20 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
   // Reserve memory
   out.parameters.reserve(2);
 
-  size_t position{0};
-
   // While position is not past the end of input:
-  while (position < input.size()) {
+  while (!input.empty()) {
     // Advance position by 1. (This skips past U+003B (;).)
-    position++;
+    input.remove_prefix(1);
 
     // Collect a sequence of code points that are HTTP whitespace from input
     // given position.
-    while (is_http_whitespace(input[position]) && position < input.size()) {
-      position++;
+    while (!input.empty() && is_http_whitespace(input[0])) {
+      input.remove_prefix(1);
     }
 
     // Let parameterName be the result of collecting a sequence of code points
     // that are not U+003B (;) or U+003D (=) from input, given position.
-    auto parameter_name_ending = input.find_first_of(";=", position);
+    auto parameter_name_ending = input.find_first_of(";=");
 
     if (parameter_name_ending == std::string_view::npos) {
       // Parameter name needs to end with either `;` or `=`
@@ -98,39 +96,34 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     // Optimization opportunity: Copy is only required if parameter_name is
     // not lowercased.
     std::string parameter_name =
-        std::string(input.substr(position, parameter_name_ending - position));
+        std::string(input.substr(0, parameter_name_ending));
     to_lower_ascii_short(parameter_name.data(), parameter_name.size());
-    position = parameter_name_ending;
+    input.remove_prefix(parameter_name_ending);
 
     // If the code point at position within input is U+003B (;), then
     // continue.
-    if (input[position] == ';') continue;
+    if (!input.empty() && input[0] == ';') continue;
 
     // Advance position by 1. (This skips past U+003D (=).)
-    position++;
+    input.remove_prefix(1);
 
     // Let parameterValue be null.
     std::string parameter_value;
 
     // If the code point at position within input is U+0022 ("), then:
-    if (input[position] == '"') {
+    if (input[0] == '"') {
       // Set parameterValue to the result of collecting an HTTP quoted string
       // from input.
-      parameter_value = collect_http_quoted_string(input, position);
+      parameter_value = collect_http_quoted_string(input);
       // Collect a sequence of code points that are not U+003B (;) from input,
       // given position.
-      position = input.find_first_of(';', position);
+      input.remove_prefix(input.find_first_of(';'));
     } else {
       // Set parameterValue to the result of collecting a sequence of code
       // points that are not U+003B (;) from input, given position.
-      auto semicolon_index = input.find_first_of(';', position);
+      auto semicolon_index = input.find_first_of(';');
 
-      if (semicolon_index == std::string_view::npos) {
-        semicolon_index = input.size();
-      }
-
-      std::string_view parameter_value_view =
-          input.substr(position, semicolon_index - position);
+      std::string_view parameter_value_view = input.substr(0, semicolon_index);
 
       // Remove any trailing HTTP whitespace from parameterValue.
       trim_trailing_http_whitespace(parameter_value_view);

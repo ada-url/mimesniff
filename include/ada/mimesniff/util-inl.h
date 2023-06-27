@@ -96,9 +96,8 @@ constexpr inline bool contains_only_http_quoted_string_tokens(
 }
 
 inline std::string collect_http_quoted_string(std::string_view& input) {
+  // It is the callers responsability that the string passed starts with ".
   std::string value{};
-
-  // TODO: Assert: the code point at position within input is U+0022 (").
 
   input.remove_prefix(1);
 
@@ -136,7 +135,6 @@ inline std::string collect_http_quoted_string(std::string_view& input) {
       // Advance position by 1.
       input.remove_prefix(1);
     } else {
-      // TODO: Assert: quoteOrBackslash is U+0022 (").
       break;
     }
   }

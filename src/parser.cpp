@@ -96,29 +96,27 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     // that are not U+003B (;) or U+003D (=) from input, given position.
     auto parameter_name_ending = input.find_first_of(";=", position);
 
-    std::string parameter_name{};
-
     if (parameter_name_ending == std::string_view::npos) {
       // If position is past the end of input, then break.
       break;
-    } else {
-      // Optimization opportunity: Copy is only required if parameter_name is
-      // not lowercased.
-      parameter_name =
-          std::string(input.substr(position, parameter_name_ending - position));
-      to_lower_ascii_short(parameter_name.data(), parameter_name.size());
-      position = parameter_name_ending;
-
-      // If the code point at position within input is U+003B (;), then
-      // continue.
-      if (input[position] == ';') continue;
-
-      // Advance position by 1. (This skips past U+003D (=).)
-      position++;
     }
 
+    // Optimization opportunity: Copy is only required if parameter_name is
+    // not lowercased.
+    std::string parameter_name =
+        std::string(input.substr(position, parameter_name_ending - position));
+    to_lower_ascii_short(parameter_name.data(), parameter_name.size());
+    position = parameter_name_ending;
+
+    // If the code point at position within input is U+003B (;), then
+    // continue.
+    if (input[position] == ';') continue;
+
+    // Advance position by 1. (This skips past U+003D (=).)
+    position++;
+
     // Let parameterValue be null.
-    std::string parameter_value{};
+    std::string parameter_value;
 
     // If the code point at position within input is U+0022 ("), then:
     if (input[position] == '"') {
@@ -146,12 +144,12 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       // Remove any trailing HTTP whitespace from parameterValue.
       trim_trailing_http_whitespace(parameter_value_view);
 
-      parameter_value = std::string(parameter_value_view);
-
       // If parameterValue is the empty string, then continue.
-      if (parameter_value.empty()) {
+      if (parameter_value_view.empty()) {
         continue;
       }
+
+      parameter_value = std::string(parameter_value_view);
     }
 
     // If all of the following are true
@@ -160,8 +158,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     // - parameterValue solely contains HTTP quoted-string token code points
     // - mimeType’s parameters[parameterName] does not exist
     if (!parameter_name.empty() && contains_only_http_tokens(parameter_name) &&
-        contains_only_http_quoted_string_tokens(
-            std::string_view(parameter_value.data(), parameter_value.size())) &&
+        contains_only_http_quoted_string_tokens(parameter_value) &&
         !out.parameters.contains_key(parameter_name)) {
       // then set mimeType’s parameters[parameterName] to parameterValue.
       out.parameters.insert({parameter_name, parameter_value});

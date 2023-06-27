@@ -134,6 +134,10 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       }
 
       parameter_value = std::string(parameter_value_view);
+
+      // Collect a sequence of code points that are not U+003B (;) from input,
+      // given position.
+      input.remove_prefix(semicolon_index);
     }
 
     // If all of the following are true

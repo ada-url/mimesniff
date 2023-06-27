@@ -1,3 +1,4 @@
+#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
@@ -23,8 +24,6 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
 
   // Let type be the result of collecting a sequence of code points that are not
   // U+002F (/) from input, given position.
-  // Optimization opportunity: Copy is only required if type is not
-  // lowercased.
   std::string_view type = input.substr(0, type_end_position);
   uint8_t type_map = http_tokens_map(type);
   // If type is the empty string or does not solely contain HTTP token code
@@ -42,18 +41,9 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
   // Remove type from input. (This skips past U+002F (/).)
   input.remove_prefix(type_end_position + 1);
 
-  if (input.empty()) {
-    // If the string doesn't have a subtype, early return. This
-    // is part of step #9. EG. "text/"
-    return std::nullopt;
-  }
-
+  // Optimization: No need to check for string_view::npos subtype_end_position
+  // is used as a second parameter to `std::string_view::substr`.
   auto subtype_end_position = input.find_first_of(';');
-
-  if (subtype_end_position == std::string_view::npos) {
-    // A mimetype may not have parameters. EG. "text/plain"
-    subtype_end_position = input.size();
-  }
 
   // Let subtype be the result of collecting a sequence of code
   // points that are not U+003B (;) from input, given position.
@@ -64,8 +54,8 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
 
   // Optimization opportunity: Copy is only required if subtype is not
   // lowercased.
-  // std::string subtype = std::string(_subtype);
   uint8_t subtype_map = http_tokens_map(subtype);
+
   // If subtype is the empty string or does not solely contain
   // HTTP token code points, then return failure.
   if (subtype.empty() || (subtype_map & 128)) {
@@ -100,6 +90,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     auto parameter_name_ending = input.find_first_of(";=", position);
 
     if (parameter_name_ending == std::string_view::npos) {
+      // Parameter name needs to end with either `;` or `=`
       // If position is past the end of input, then break.
       break;
     }
@@ -128,10 +119,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       parameter_value = collect_http_quoted_string(input, position);
       // Collect a sequence of code points that are not U+003B (;) from input,
       // given position.
-      auto semicolon_index = input.find_first_of(';', position);
-
-      position = semicolon_index == std::string_view::npos ? input.size()
-                                                           : semicolon_index;
+      position = input.find_first_of(';', position);
     } else {
       // Set parameterValue to the result of collecting a sequence of code
       // points that are not U+003B (;) from input, given position.

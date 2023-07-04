@@ -12,7 +12,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
   // Remove any leading and trailing HTTP whitespace from input.
   trim_http_whitespace(input);
 
-  auto type_end_position = input.find_first_of('/');
+  auto type_end_position = input.find('/');
   if (type_end_position == std::string_view::npos) {
     return std::nullopt;
   }
@@ -32,7 +32,7 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
 
   // Optimization: No need to check for string_view::npos subtype_end_position
   // is used as a second parameter to `std::string_view::substr`.
-  auto subtype_end_position = input.find_first_of(';');
+  auto subtype_end_position = input.find(';');
 
   // Let subtype be the result of collecting a sequence of code
   // points that are not U+003B (;) from input, given position.
@@ -116,11 +116,11 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
       parameter_value = collect_http_quoted_string(input);
       // Collect a sequence of code points that are not U+003B (;) from input,
       // given position.
-      input.remove_prefix(input.find_first_of(';'));
+      input.remove_prefix(input.find(';'));
     } else {
       // Set parameterValue to the result of collecting a sequence of code
       // points that are not U+003B (;) from input, given position.
-      auto semicolon_index = input.find_first_of(';');
+      auto semicolon_index = input.find(';');
 
       std::string_view parameter_value_view = input.substr(0, semicolon_index);
 
@@ -146,10 +146,10 @@ std::optional<mimetype> parse_mime_type(std::string_view input) {
     // - mimeType’s parameters[parameterName] does not exist
     if (!parameter_name.empty() && contains_only_http_tokens(parameter_name) &&
         contains_only_http_quoted_string_tokens(parameter_value) &&
-        std::find_if(out.parameters.begin(), out.parameters.end(),
-                     [&parameter_name](const auto& param) {
+        std::none_of(out.parameters.begin(), out.parameters.end(),
+                     [&parameter_name](auto& param) {
                        return param.first == parameter_name;
-                     }) == out.parameters.end()) {
+                     })) {
       // then set mimeType’s parameters[parameterName] to parameterValue.
       out.parameters.emplace_back(parameter_name, parameter_value);
     }
